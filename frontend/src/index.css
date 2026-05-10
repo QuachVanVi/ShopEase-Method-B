@@ -1,0 +1,32 @@
+@import "tailwindcss";
+
+@theme {
+  --color-primary: #8a5100;
+  --color-surface: #f9f9f9;
+  --font-sans: "Outfit", "Public Sans", sans-serif;
+  --shadow-ambient: 0 12px 32px rgba(26, 28, 28, 0.06);
+}
+
+@layer base {
+  :root {
+    transition: background-color 0.5s ease;
+  }
+
+  body {
+    @apply bg-surface text-gray-900 font-sans antialiased;
+  }
+
+  .dark body {
+    @apply bg-[#0a0a0a] text-gray-100;
+  }
+
+  /* Smooth theme transitions for common elements */
+  main, aside, nav, .bg-white {
+    transition: background-color 0.4s ease, border-color 0.4s ease;
+  }
+}
+
+.shadow-ambient {
+  box-shadow: var(--shadow-ambient);
+}
+
