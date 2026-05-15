@@ -2,6 +2,8 @@ package com.shopease.marketplace.security;
 
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -43,12 +45,14 @@ public class JwtTokenProvider {
                 .getSubject();
     }
 
+    private static final Logger logger = LoggerFactory.getLogger(JwtTokenProvider.class);
+
     public boolean validateToken(String token) {
         try {
             Jwts.parser().verifyWith(getSigningKey()).build().parseSignedClaims(token);
             return true;
         } catch (JwtException | IllegalArgumentException e) {
-            // Log error in production
+            logger.error("Invalid JWT token: {}", e.getMessage());
         }
         return false;
     }

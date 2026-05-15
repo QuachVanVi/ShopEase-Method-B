@@ -27,20 +27,19 @@ import static org.springframework.security.config.Customizer.withDefaults;
 @EnableWebSecurity
 public class SecurityConfig {
 
-    @Autowired
-    private JwtAuthenticationFilter jwtAuthenticationFilter;
+    private final JwtAuthenticationFilter jwtAuthenticationFilter;
+    private final ClientRegistrationRepository clientRegistrationRepository;
+    private final OAuth2SuccessHandler oAuth2SuccessHandler;
 
     @Autowired
-    private ClientRegistrationRepository clientRegistrationRepository;
+    public SecurityConfig(JwtAuthenticationFilter jwtAuthenticationFilter, 
+                          ClientRegistrationRepository clientRegistrationRepository, 
+                          OAuth2SuccessHandler oAuth2SuccessHandler) {
+        this.jwtAuthenticationFilter = jwtAuthenticationFilter;
+        this.clientRegistrationRepository = clientRegistrationRepository;
+        this.oAuth2SuccessHandler = oAuth2SuccessHandler;
+    }
 
-    @Autowired
-    private OAuth2SuccessHandler oAuth2SuccessHandler;
-
-    /**
-     * Custom resolver that disables PKCE (Proof Key for Code Exchange).
-     * Spring Security 6+ enables PKCE by default, but Google's OAuth2 policy
-     * blocks server-side (confidential) clients that use PKCE with a client_secret.
-     */
     @Bean
     public OAuth2AuthorizationRequestResolver noPkceResolver() {
         DefaultOAuth2AuthorizationRequestResolver resolver =
@@ -57,14 +56,9 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-        // CSRF Note: Disabling CSRF because we use stateless JWT authentication.
-        // JWTs are passed via the Authorization header, which browsers do not automatically attach
-        // to cross-site requests, protecting us from CSRF attacks without needing a CSRF token.
         http
             .cors(withDefaults())
             .csrf(csrf -> csrf.disable())
-            // OAuth2 login requires a session to store state between redirect steps.
-            // API endpoints are kept stateless via JWT; the session is only used during the OAuth2 handshake.
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED))
             .authorizeHttpRequests(authz -> authz
                 .requestMatchers("/api/auth/**", "/api/products/**", "/api/reviews/**", "/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll()
@@ -92,7 +86,6 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        // Allow frontend to connect
         configuration.setAllowedOrigins(Arrays.asList("http://localhost:5173", "http://localhost:5174", "http://localhost:5175"));
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(Arrays.asList("*"));

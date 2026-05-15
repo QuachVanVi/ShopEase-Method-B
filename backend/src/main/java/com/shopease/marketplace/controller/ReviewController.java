@@ -16,14 +16,16 @@ import java.util.List;
 @RequestMapping("/api/reviews")
 public class ReviewController {
 
-    @Autowired
-    private ReviewRepository reviewRepository;
+    private final ReviewRepository reviewRepository;
+    private final ProductRepository productRepository;
+    private final UserRepository userRepository;
 
     @Autowired
-    private ProductRepository productRepository;
-
-    @Autowired
-    private UserRepository userRepository;
+    public ReviewController(ReviewRepository reviewRepository, ProductRepository productRepository, UserRepository userRepository) {
+        this.reviewRepository = reviewRepository;
+        this.productRepository = productRepository;
+        this.userRepository = userRepository;
+    }
 
     @GetMapping("/product/{productId}")
     public ResponseEntity<List<Review>> getReviewsByProduct(@PathVariable Long productId) {
@@ -31,7 +33,7 @@ public class ReviewController {
     }
 
     @PostMapping
-    public ResponseEntity<?> addReview(@RequestParam Long productId, @RequestParam String username, @RequestBody Review review) {
+    public ResponseEntity<Object> addReview(@RequestParam Long productId, @RequestParam String username, @RequestBody Review review) {
         Product product = productRepository.findById(productId).orElse(null);
         User user = userRepository.findByUsername(username).orElse(null);
 

@@ -13,11 +13,15 @@ import java.util.Optional;
 @RequestMapping("/api/users")
 public class UserController {
 
+    private final UserRepository userRepository;
+
     @Autowired
-    private UserRepository userRepository;
+    public UserController(UserRepository userRepository) {
+        this.userRepository = userRepository;
+    }
 
     @GetMapping("/{username}")
-    public ResponseEntity<?> getUserByUsername(@PathVariable String username) {
+    public ResponseEntity<Object> getUserByUsername(@PathVariable String username) {
         Optional<User> userOpt = userRepository.findByUsername(username);
         if (userOpt.isPresent()) {
             User user = userOpt.get();
@@ -31,16 +35,13 @@ public class UserController {
             safeUser.setCountry(user.getCountry());
             safeUser.setRole(user.getRole());
             safeUser.setWishlistProductIds(user.getWishlistProductIds());
-            safeUser.setCountry(user.getCountry());
-            safeUser.setRole(user.getRole());
-            safeUser.setWishlistProductIds(user.getWishlistProductIds());
             return ResponseEntity.ok(safeUser);
         }
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found");
     }
 
     @PutMapping("/{username}")
-    public ResponseEntity<?> updateUser(@PathVariable String username, @RequestBody User updateData) {
+    public ResponseEntity<String> updateUser(@PathVariable String username, @RequestBody User updateData) {
         Optional<User> userOpt = userRepository.findByUsername(username);
         if (userOpt.isPresent()) {
             User user = userOpt.get();
