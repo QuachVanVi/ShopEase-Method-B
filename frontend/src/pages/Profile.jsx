@@ -6,7 +6,7 @@ import { User, Mail, MapPin, Phone, Globe, Save, Loader2, Heart, CreditCard, Sho
 import AddCardModal from '../components/AddCardModal';
 
 export default function Profile() {
-  const { user, logout } = useAuth();
+  const { user, token, logout } = useAuth();
   const { wishlist, toggleWishlist } = useWishlist();
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
@@ -59,8 +59,10 @@ export default function Profile() {
 
     const fetchData = async () => {
       try {
-        // Fetch User details
-        const userRes = await fetch(`http://localhost:8080/api/users/${user}`);
+        // Fetch User details (requires JWT)
+        const userRes = await fetch(`http://localhost:8080/api/users/${user}`, {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
         if (userRes.ok) {
           const data = await userRes.json();
           setFormData({
@@ -72,7 +74,7 @@ export default function Profile() {
           });
         }
 
-        // Fetch Products for the wishlist display
+        // Fetch Products for the wishlist display (public endpoint)
         const prodRes = await fetch('http://localhost:8080/api/products');
         if (prodRes.ok) {
           const prodData = await prodRes.json();
@@ -100,7 +102,10 @@ export default function Profile() {
     try {
       const response = await fetch(`http://localhost:8080/api/users/${user}`, {
         method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
         body: JSON.stringify(formData)
       });
 

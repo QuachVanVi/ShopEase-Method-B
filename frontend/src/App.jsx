@@ -11,6 +11,7 @@ import { AuthProvider } from './context/AuthContext';
 import { ThemeProvider } from './context/ThemeContext';
 import { WishlistProvider } from './context/WishlistContext';
 import Profile from './pages/Profile';
+import OAuth2Callback from './pages/OAuth2Callback';
 
 function HomeOrGrid() {
   const [searchParams] = useSearchParams();
@@ -41,6 +42,7 @@ function App() {
                 <Route path="/login" element={<Login />} />
                 <Route path="/register" element={<Register />} />
                 <Route path="/profile" element={<Profile />} />
+                <Route path="/oauth2/callback" element={<OAuth2Callback />} />
               </Routes>
             </main>
           </div>
