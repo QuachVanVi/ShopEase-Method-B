@@ -4,24 +4,29 @@ const AuthContext = createContext();
 
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(localStorage.getItem('user') || null);
-  const [token, setToken] = useState(localStorage.getItem('token') || null);
 
-  const login = (username, userToken) => {
+  const login = (username) => {
     localStorage.setItem('user', username);
-    localStorage.setItem('token', userToken);
-    // Force a full page reload to clear all state contexts (like wishlist shadows)
+    setUser(username);
+    // Force a full page reload to clear all state contexts
     window.location.href = '/';
   };
 
-  const logout = () => {
+  const logout = async () => {
+    try {
+      // Call backend to clear HttpOnly cookie
+      await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/auth/logout`, { method: 'POST' });
+    } catch (err) {
+      console.error('Logout failed', err);
+    }
     localStorage.removeItem('user');
-    localStorage.removeItem('token');
+    setUser(null);
     // Force a full page reload to a clean slate
     window.location.href = '/login';
   };
 
   return (
-    <AuthContext.Provider value={{ user, token, login, logout }}>
+    <AuthContext.Provider value={{ user, login, logout }}>
       {children}
     </AuthContext.Provider>
   );

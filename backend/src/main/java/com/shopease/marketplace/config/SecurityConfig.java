@@ -3,6 +3,7 @@ package com.shopease.marketplace.config;
 import com.shopease.marketplace.security.JwtAuthenticationFilter;
 import com.shopease.marketplace.security.OAuth2SuccessHandler;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -30,6 +31,9 @@ public class SecurityConfig {
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
     private final ClientRegistrationRepository clientRegistrationRepository;
     private final OAuth2SuccessHandler oAuth2SuccessHandler;
+
+    @Value("${shopease.cors.allowed-origins}")
+    private String allowedOrigins;
 
     @Autowired
     public SecurityConfig(JwtAuthenticationFilter jwtAuthenticationFilter, 
@@ -61,8 +65,11 @@ public class SecurityConfig {
             .csrf(csrf -> csrf.disable())
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED))
             .authorizeHttpRequests(authz -> authz
-                .requestMatchers("/api/auth/**", "/api/products/**", "/api/reviews/**", "/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll()
+                .requestMatchers("/api/auth/**", "/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll()
                 .requestMatchers("/login", "/oauth2/**").permitAll()
+                .requestMatchers(org.springframework.http.HttpMethod.GET, "/api/products/**", "/api/reviews/**").permitAll()
+                .requestMatchers("/api/products/**").hasRole("ADMIN")
+                .requestMatchers("/api/reviews/**").authenticated()
                 .requestMatchers("/api/users/**").authenticated()
                 .anyRequest().authenticated()
             )
@@ -86,7 +93,7 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(Arrays.asList("http://localhost:5173", "http://localhost:5174", "http://localhost:5175"));
+        configuration.setAllowedOrigins(Arrays.asList(allowedOrigins.split(",")));
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(Arrays.asList("*"));
         configuration.setAllowCredentials(true);

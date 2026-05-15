@@ -14,15 +14,16 @@ export default function Login() {
     setError('');
     
     try {
-      const response = await fetch('http://localhost:8080/api/auth/login', {
+      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/auth/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
         body: JSON.stringify({ username, password })
       });
 
       if (response.ok) {
         const data = await response.json();
-        login(data.username, data.token);
+        login(data.username);
       } else {
         setError('Invalid credentials');
       }
@@ -85,7 +86,7 @@ export default function Login() {
 
         {/* Google Sign In */}
         <a
-          href="http://localhost:8080/oauth2/authorization/google"
+          href={`${import.meta.env.VITE_API_BASE_URL}/oauth2/authorization/google`}
           className="flex items-center justify-center gap-3 w-full py-3 px-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-all active:scale-[0.98] text-sm font-semibold text-gray-700 shadow-sm"
         >
           <svg className="w-5 h-5" viewBox="0 0 24 24">

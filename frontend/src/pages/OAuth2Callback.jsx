@@ -8,13 +8,12 @@ export default function OAuth2Callback() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    const token = searchParams.get('token');
     const username = searchParams.get('username');
 
-    if (token && username) {
-      login(username, token);
+    if (username) {
+      login(username);
     } else {
-      // If no token, something went wrong — redirect to login
+      // If no username, something went wrong — redirect to login
       navigate('/login');
     }
   }, []);

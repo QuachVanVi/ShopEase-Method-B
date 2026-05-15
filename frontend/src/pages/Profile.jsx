@@ -6,7 +6,7 @@ import { User, Mail, MapPin, Phone, Globe, Save, Loader2, Heart, CreditCard, Sho
 import AddCardModal from '../components/AddCardModal';
 
 export default function Profile() {
-  const { user, token, logout } = useAuth();
+  const { user, logout } = useAuth();
   const { wishlist, toggleWishlist } = useWishlist();
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
@@ -59,9 +59,9 @@ export default function Profile() {
 
     const fetchData = async () => {
       try {
-        // Fetch User details (requires JWT)
-        const userRes = await fetch(`http://localhost:8080/api/users/${user}`, {
-          headers: { 'Authorization': `Bearer ${token}` }
+        // Fetch User details (requires JWT in cookie)
+        const userRes = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/users/${user}`, {
+          credentials: 'include'
         });
         if (userRes.ok) {
           const data = await userRes.json();
@@ -75,7 +75,7 @@ export default function Profile() {
         }
 
         // Fetch Products for the wishlist display (public endpoint)
-        const prodRes = await fetch('http://localhost:8080/api/products');
+        const prodRes = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/products`);
         if (prodRes.ok) {
           const prodData = await prodRes.json();
           setProducts(prodData);
@@ -100,12 +100,12 @@ export default function Profile() {
     setMessage('');
     
     try {
-      const response = await fetch(`http://localhost:8080/api/users/${user}`, {
+      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/users/${user}`, {
         method: 'PUT',
         headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
+          'Content-Type': 'application/json'
         },
+        credentials: 'include',
         body: JSON.stringify(formData)
       });
 

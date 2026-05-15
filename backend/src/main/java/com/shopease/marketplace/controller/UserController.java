@@ -1,10 +1,13 @@
 package com.shopease.marketplace.controller;
 
 import com.shopease.marketplace.entity.User;
+import com.shopease.marketplace.dto.UserUpdateDTO;
 import com.shopease.marketplace.repository.UserRepository;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Optional;
@@ -21,7 +24,10 @@ public class UserController {
     }
 
     @GetMapping("/{username}")
-    public ResponseEntity<Object> getUserByUsername(@PathVariable String username) {
+    public ResponseEntity<Object> getUserByUsername(@PathVariable String username, Authentication authentication) {
+        if (!authentication.getName().equals(username) && !authentication.getAuthorities().stream().anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"))) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Access denied: You can only access your own profile");
+        }
         Optional<User> userOpt = userRepository.findByUsername(username);
         if (userOpt.isPresent()) {
             User user = userOpt.get();
@@ -41,7 +47,10 @@ public class UserController {
     }
 
     @PutMapping("/{username}")
-    public ResponseEntity<String> updateUser(@PathVariable String username, @RequestBody User updateData) {
+    public ResponseEntity<String> updateUser(@PathVariable String username, @Valid @RequestBody UserUpdateDTO updateData, Authentication authentication) {
+        if (!authentication.getName().equals(username) && !authentication.getAuthorities().stream().anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"))) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Access denied: You can only update your own profile");
+        }
         Optional<User> userOpt = userRepository.findByUsername(username);
         if (userOpt.isPresent()) {
             User user = userOpt.get();

@@ -14,7 +14,7 @@ export default function ProductGrid() {
   const searchQuery = searchParams.get('q');
 
   useEffect(() => {
-    fetch('http://localhost:8080/api/products?t=' + new Date().getTime())
+    fetch(`${import.meta.env.VITE_API_BASE_URL}/api/products?t=` + new Date().getTime())
       .then(res => res.json())
       .then(data => {
         setProducts(data);

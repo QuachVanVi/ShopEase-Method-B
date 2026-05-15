@@ -16,7 +16,7 @@ export default function ProductDetail() {
   useEffect(() => {
     window.scrollTo(0, 0);
     // Fetch product details
-    fetch(`http://localhost:8080/api/products/${id}`)
+    fetch(`${import.meta.env.VITE_API_BASE_URL}/api/products/${id}`)
       .then(res => res.json())
       .then(data => {
         setProduct(data);
@@ -28,7 +28,7 @@ export default function ProductDetail() {
       });
 
     // Fetch reviews
-    fetch(`http://localhost:8080/api/reviews/product/${id}`)
+    fetch(`${import.meta.env.VITE_API_BASE_URL}/api/reviews/product/${id}`)
       .then(res => res.json())
       .then(data => {
         setReviews(data);
